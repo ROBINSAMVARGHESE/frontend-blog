@@ -1,0 +1,111 @@
+.blog-form {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.blog-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.draft-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--secondary-color);
+  font-size: 0.9rem;
+}
+
+.btn-clear-draft {
+  background: none;
+  border: none;
+  color: var(--danger-color);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-clear-draft:hover {
+  text-decoration: underline;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-check-input {
+  width: auto;
+}
+
+.form-check-label {
+  margin-bottom: 0;
+}
+
+.image-preview {
+  margin-top: 1rem;
+  position: relative;
+  max-width: 100%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+}
+
+.btn-remove-image {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.btn-remove-image:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* React Quill styles */
+.quill {
+  margin-bottom: 1.5rem;
+}
+
+.ql-editor {
+  min-height: 200px;
+  background-color: var(--bg-color);
+}
+
+.ql-toolbar,
+.ql-container {
+  border-color: var(--border-color) !important;
+}
+
+.ql-toolbar {
+  background-color: var(--bg-secondary);
+}
+
+.blog-form-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+

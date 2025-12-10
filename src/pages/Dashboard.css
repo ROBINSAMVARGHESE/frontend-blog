@@ -1,0 +1,112 @@
+.dashboard {
+  padding: 2rem 0;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-user-info {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+}
+
+.dashboard-user-info h2 {
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-blogs {
+  margin-bottom: 2rem;
+}
+
+.dashboard-blogs h3 {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-table th {
+  font-weight: 600;
+  background-color: var(--bg-secondary);
+}
+
+.status {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.status.published {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status.draft {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.blog-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit,
+.btn-delete {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
+  border: none;
+}
+
+.btn-delete {
+  background-color: var(--bg-secondary);
+  color: var(--danger-color);
+  border: none;
+}
+
+.dashboard-empty {
+  text-align: center;
+  padding: 3rem;
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+}
+
+.dashboard-empty p {
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-loading,
+.dashboard-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+}
+

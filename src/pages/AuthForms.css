@@ -1,0 +1,32 @@
+.auth-form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+.auth-form-card {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form-card h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.auth-form-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
