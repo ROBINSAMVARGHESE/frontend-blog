@@ -1,144 +1,135 @@
-"use client"
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import { API_URL } from "../config";
 
-import { createContext, useContext, useState, useEffect } from "react"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
-import { API_URL } from "../config"
-
-const AuthContext = createContext()
-
-export const useAuth = () => useContext(AuthContext)
+const AuthContext = createContext();
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [token, setToken] = useState(localStorage.getItem("token"))
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const navigate = useNavigate()
+  // Helper: set / remove axios default Authorization header
+  const setAxiosAuthHeader = (tok) => {
+    if (tok) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${tok}`;
+    } else {
+      delete axios.defaults.headers.common["Authorization"];
+    }
+  };
 
-  // Set axios default headers
+  //🔥 Initialize axios Authorization header ONCE on app load
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    setAxiosAuthHeader(storedToken);
+  }, []);
+
+  //🔥 Load logged-in user using the token
+  const loadUser = useCallback(async () => {
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    try {
+      const res = await axios.get(`${API_URL}/api/auth/me`);
+      setUser(res.data.user || null);
+      setError("");
+    } catch (err) {
+      if (err.response?.status === 401) {
+        // Auto logout on expired/invalid token
+        setToken(null);
+        setUser(null);
+        localStorage.removeItem("token");
+        setAxiosAuthHeader(null);
+        setError("Session expired. Please login again.");
+      } else {
+        setUser(null);
+        setError(err.response?.data?.message || "Failed to load user");
+      }
+    }
+  }, [token]);
+
+  // Load user whenever token changes
   useEffect(() => {
     if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
+      setAxiosAuthHeader(token);
+      loadUser();
     } else {
-      delete axios.defaults.headers.common["Authorization"]
+      setUser(null);
+      setAxiosAuthHeader(null);
     }
-  }, [token])
+  }, [token, loadUser]);
 
-  // Load user on mount
-  useEffect(() => {
-    const loadUser = async () => {
-      if (!token) {
-        setLoading(false)
-        return
+  // REGISTER (no auto login)
+  const register = async (data) => {
+    try {
+      setLoading(true);
+      setError("");
+      await axios.post(`${API_URL}/api/auth/register`, data);
+      return true;
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // LOGIN
+  const login = async (data) => {
+    console.log(login)
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await axios.post(`${API_URL}/api/auth/login`, data);
+
+      const tok = res.data.token;
+      if (!tok) {
+        setError("Login succeeded but token missing");
+        return false;
       }
 
-      try {
-        const res = await axios.get(`${API_URL}/api/auth/me`)
-        setUser(res.data.user)
-      } catch (err) {
-        console.error("Error loading user:", err)
-        localStorage.removeItem("token")
-        setToken(null)
-        setError("Session expired. Please login again.")
-      } finally {
-        setLoading(false)
-      }
-    }
+      setToken(tok);
+      localStorage.setItem("token", tok);
+      setAxiosAuthHeader(tok);
+      setUser(res.data.user || null);
 
-    loadUser()
-  }, [token])
-
-  // Register user
-  const register = async (userData) => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const res = await axios.post(`${API_URL}/api/auth/register`, userData)
-
-      localStorage.setItem("token", res.data.token)
-      setToken(res.data.token)
-      // Ensure axios has the auth header immediately to avoid race conditions
-      axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`
-      setUser(res.data.user)
-
-      return true
+      return true;
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed")
-      return false
+      setError(err.response?.data?.message || "Login failed");
+      return false;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  // Login user
-  const login = async (userData) => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const res = await axios.post(`${API_URL}/api/auth/login`, userData)
-
-      localStorage.setItem("token", res.data.token)
-      setToken(res.data.token)
-      // Ensure axios has the auth header immediately to avoid race conditions
-      axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`
-      setUser(res.data.user)
-
-      return true
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed")
-      return false
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Logout user
+  // LOGOUT
   const logout = () => {
-    localStorage.removeItem("token")
-    setToken(null)
-    setUser(null)
-    // Remove axios default authorization header
-    delete axios.defaults.headers.common["Authorization"]
-    navigate("/")
-  }
-
-  // Update user profile
-  const updateProfile = async (userData) => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const res = await axios.put(`${API_URL}/api/users/profile`, userData)
-      setUser(res.data.user)
-      return true
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to update profile")
-      return false
-    } finally {
-      setLoading(false)
-    }
-  }
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem("token");
+    setAxiosAuthHeader(null);
+    setError("");
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
         token,
-        loading,
         error,
+        loading,
         register,
         login,
         logout,
-        updateProfile,
-        setError,
       }}
     >
       {children}
     </AuthContext.Provider>
-  )
-}
-
+  );
+};

@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import Alert from "../components/ui/Alert"
@@ -12,30 +11,19 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   })
-  const [formError, setFormError] = useState(null)
 
-  const { register, error, loading, user } = useAuth()
+  const [formError, setFormError] = useState(null)
+  const { register, error, loading } = useAuth()
   const navigate = useNavigate()
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      navigate("/dashboard")
-    }
-  }, [user, navigate])
-
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
+    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setFormError(null)
 
-    // Validate form
     if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
       setFormError("Please fill in all fields")
       return
@@ -138,4 +126,5 @@ const Register = () => {
 }
 
 export default Register
+
 

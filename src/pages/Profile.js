@@ -31,11 +31,9 @@ const Profile = () => {
       try {
         setLoading(true)
 
-        // Fetch user profile
         const profileResponse = await fetchUserProfile(id)
         setProfile(profileResponse.user)
 
-        // Set form data if it's the user's own profile
         if (isOwnProfile) {
           setFormData({
             name: profileResponse.user.name,
@@ -43,7 +41,6 @@ const Profile = () => {
           })
         }
 
-        // Fetch user's blogs
         const blogsResponse = await fetchBlogs(1, 6, "", id)
         setBlogs(blogsResponse.data)
       } catch (err) {
@@ -65,13 +62,10 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     try {
       setUpdateLoading(true)
       setUpdateError(null)
-
       const success = await updateProfile(formData)
-
       if (success) {
         setProfile({
           ...profile,
@@ -115,9 +109,7 @@ const Profile = () => {
         {isEditing ? (
           <div className="profile-edit-form">
             <h1>Edit Profile</h1>
-
             {updateError && <Alert type="danger" message={updateError} />}
-
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="name">Name</label>
@@ -131,7 +123,6 @@ const Profile = () => {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label htmlFor="bio">Bio</label>
                 <textarea
@@ -143,7 +134,6 @@ const Profile = () => {
                   rows={4}
                 ></textarea>
               </div>
-
               <div className="profile-edit-actions">
                 <button type="button" className="btn btn-secondary" onClick={() => setIsEditing(false)}>
                   Cancel
@@ -155,25 +145,29 @@ const Profile = () => {
             </form>
           </div>
         ) : (
-          <>
-            <div className="profile-info">
-              <h1>{profile.name}</h1>
-              {profile.bio && <p className="profile-bio">{profile.bio}</p>}
-              <p className="profile-joined">Joined on {formatDate(profile.createdAt)}</p>
-            </div>
+          <div className="profile-info">
+            {profile.avatar ? (
+              <img src={profile.avatar} alt={profile.name} className="profile-avatar" />
+            ) : (
+              <div className="profile-avatar-placeholder">
+                {profile.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <h1>{profile.name}</h1>
+            {profile.bio && <p className="profile-bio">{profile.bio}</p>}
+            <p className="profile-joined">Joined on {formatDate(profile.createdAt)}</p>
 
             {isOwnProfile && (
               <button className="btn btn-outline" onClick={() => setIsEditing(true)}>
                 Edit Profile
               </button>
             )}
-          </>
+          </div>
         )}
       </div>
 
       <div className="profile-blogs">
         <h2>Blogs by {profile.name}</h2>
-
         {blogs.length === 0 ? (
           <div className="profile-blogs-empty">
             <p>No blogs published yet.</p>
@@ -191,4 +185,6 @@ const Profile = () => {
 }
 
 export default Profile
+
+
 
