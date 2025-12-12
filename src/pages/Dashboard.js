@@ -23,6 +23,12 @@ const Dashboard = () => {
 
   useEffect(() => {
     const loadUserBlogs = async () => {
+      // Don't attempt to load user blogs until we have a user (avoid 401 races)
+      if (!user) {
+        setLoading(false)
+        return
+      }
+
       try {
         setLoading(true)
         const response = await fetchUserBlogs(pagination.page, pagination.limit)
@@ -36,7 +42,7 @@ const Dashboard = () => {
     }
 
     loadUserBlogs()
-  }, [pagination.page, pagination.limit])
+  }, [pagination.page, pagination.limit, user])
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this blog?")) {

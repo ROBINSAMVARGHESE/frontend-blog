@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect } from "react"
 import { Routes, Route } from "react-router-dom"
 import { useTheme } from "./context/ThemeContext"
@@ -55,4 +53,3 @@ function App() {
 }
 
 export default App
-

@@ -1,37 +1,40 @@
 import axios from "axios";
 import { API_URL } from "../config";
 
-// Helper to get Authorization header
-const getAuthConfig = () => {
+// ----------------- Helper Functions -----------------
+
+// Get Authorization header (supports multipart/form-data)
+export const getAuthConfig = (isMultipart = false) => {
   const token = localStorage.getItem("token");
 
   return {
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
+      Authorization: `Bearer ${token}`
+    }
   };
 };
 
-// Helper to normalize/throw Error objects
+
+
+
+// Format and throw errors
 const throwFormattedError = (err, fallbackMessage) => {
-  const msg =
+  const message =
     err?.response?.data?.message ||
-    err?.response?.data?.message ||
+    err?.response?.data ||
     (typeof err === "string" ? err : null) ||
     fallbackMessage;
-  throw new Error(msg);
+  throw new Error(message);
 };
 
 // ----------------- BLOGS API -----------------
 
 export const fetchBlogs = async (page = 1, limit = 10, search = "") => {
   try {
-    const res = await axios.get(
-      `${API_URL}/api/blogs?page=${page}&limit=${limit}&search=${search}`
-    );
+    const res = await axios.get(`${API_URL}/api/blogs?page=${page}&limit=${limit}&search=${search}`);
     return res.data;
-  } catch (error) {
-    throwFormattedError(error, "Failed to fetch blogs");
+  } catch (err) {
+    throwFormattedError(err, "Failed to fetch blogs");
   }
 };
 
@@ -39,41 +42,29 @@ export const fetchBlogById = async (id) => {
   try {
     const res = await axios.get(`${API_URL}/api/blogs/${id}`);
     return res.data;
-  } catch (error) {
-    throwFormattedError(error, "Failed to fetch blog");
+  } catch (err) {
+    throwFormattedError(err, "Failed to fetch blog");
   }
 };
 
-// ----------- FIXED FINAL WORKING VERSION -------------
 export const createBlog = async (blogData) => {
   try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token found. Please login.");
-
-    const config = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-    };
-
+    const config = getAuthConfig(true); 
     const res = await axios.post(`${API_URL}/api/blogs`, blogData, config);
+   
     return res.data;
-
-  } catch (error) {
-    throw error.response?.data || new Error("Failed to create blog");
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Failed to create blog");
   }
 };
-
-// ------------------------------------------------------
 
 export const updateBlog = async (id, blogData) => {
   try {
-    const config = getAuthConfig();
+    const config = getAuthConfig(true); // support file upload
     const res = await axios.put(`${API_URL}/api/blogs/${id}`, blogData, config);
     return res.data;
-  } catch (error) {
-    throwFormattedError(error, "Failed to update blog");
+  } catch (err) {
+    throwFormattedError(err, "Failed to update blog");
   }
 };
 
@@ -82,21 +73,18 @@ export const deleteBlog = async (id) => {
     const config = getAuthConfig();
     const res = await axios.delete(`${API_URL}/api/blogs/${id}`, config);
     return res.data;
-  } catch (error) {
-    throwFormattedError(error, "Failed to delete blog");
+  } catch (err) {
+    throwFormattedError(err, "Failed to delete blog");
   }
 };
 
 export const fetchUserBlogs = async (page = 1, limit = 10) => {
   try {
     const config = getAuthConfig();
-    const res = await axios.get(
-      `${API_URL}/api/blogs/user?page=${page}&limit=${limit}`,
-      config
-    );
+    const res = await axios.get(`${API_URL}/api/blogs/user?page=${page}&limit=${limit}`, config);
     return res.data;
-  } catch (error) {
-    throwFormattedError(error, "Failed to fetch user blogs");
+  } catch (err) {
+    throwFormattedError(err, "Failed to fetch user blogs");
   }
 };
 
@@ -106,8 +94,8 @@ export const fetchComments = async (blogId) => {
   try {
     const res = await axios.get(`${API_URL}/api/comments/${blogId}`);
     return res.data;
-  } catch (error) {
-    throwFormattedError(error, "Failed to fetch comments");
+  } catch (err) {
+    throwFormattedError(err, "Failed to fetch comments");
   }
 };
 
@@ -116,8 +104,8 @@ export const addComment = async (commentData) => {
     const config = getAuthConfig();
     const res = await axios.post(`${API_URL}/api/comments`, commentData, config);
     return res.data;
-  } catch (error) {
-    throwFormattedError(error, "Failed to add comment");
+  } catch (err) {
+    throwFormattedError(err, "Failed to add comment");
   }
 };
 
@@ -126,18 +114,21 @@ export const deleteComment = async (id) => {
     const config = getAuthConfig();
     const res = await axios.delete(`${API_URL}/api/comments/${id}`, config);
     return res.data;
-  } catch (error) {
-    throwFormattedError(error, "Failed to delete comment");
+  } catch (err) {
+    throwFormattedError(err, "Failed to delete comment");
   }
 };
 
 // ----------------- USER API -----------------
 
-export const fetchUserProfile = async (id) => {
+export const fetchUserProfile = async (id = null) => {
   try {
-    const res = await axios.get(`${API_URL}/api/users/${id}`);
+    const config = getAuthConfig();
+    // if no id provided, fetch current user using /me endpoint
+    const endpoint = id ? `${API_URL}/api/users/${id}` : `${API_URL}/api/users/me`;
+    const res = await axios.get(endpoint, config);
     return res.data;
-  } catch (error) {
-    throwFormattedError(error, "Failed to fetch user profile");
+  } catch (err) {
+    throwFormattedError(err, "Failed to fetch user profile");
   }
 };
